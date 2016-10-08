@@ -38,6 +38,25 @@ public class Tuple {
         tuple.add(i);
     }
 
+    // Returns a clone of a tuple with a new attribute list
+    public Tuple clone(ArrayList<String> attr) {
+        Tuple newTuple = new Tuple(attr, this.domains);
+        for (int i = 0; i < this.tuple.size(); i++) {
+            switch (this.domains.get(i)) {
+                case "VARCHAR":
+                    newTuple.addStringComponent((String) this.tuple.get(i));
+                    break;
+                case "INTEGER":
+                    newTuple.addIntegerComponent((int) this.tuple.get(i));
+                    break;
+                case "DOUBLE":
+                    newTuple.addDoubleComponent((double) this.tuple.get(i));
+                    break;
+            }
+        }
+        return newTuple;
+    }
+
     // return String representation of tuple; See output of run for format.
     public String toString() {
         String output = new String();

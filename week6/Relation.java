@@ -2,21 +2,15 @@ import java.io.*;
 import java.util.*;
 
 public class Relation {
-    // Name of the relation.
+
+    // Instance variables
     private String name;
-
-    // Attribute names for the relation
     private ArrayList<String> attributes;
-
-    // Domain classes or types of attributes; possible values: INTEGER, DECIMAL, VARCHAR
     private ArrayList<String> domains;
-
-    // Actual data storage (list of tuples) for the relation.
     private ArrayList<Tuple> table;
 
-    // METHODS
 
-    // Constructor; set instance variables
+    // Constructor
     public Relation (String name, ArrayList<String> attributes, ArrayList<String> dNames) {
         this.name = name;
         this.attributes = attributes;
@@ -30,15 +24,13 @@ public class Relation {
             for (int j = i + 1; j < table.size(); j++) {
                 if (table.get(i).equals(table.get(j))) {
                         table.remove(i);
-                        // Move i back one because the old elements of the arraylist are moved over one
                         i--;
                 }
             }
         }
     }
 
-    // returns true if attribute with name aname exists in relation schema
-    // false otherwise
+    // Returns true if aname matches an attribute
     public boolean attributeExists(String aname) {
         for (String s : attributes) {
             if (aname.equals(s))
@@ -47,8 +39,7 @@ public class Relation {
         return false;
     }
 
-
-    // returns domain type of attribute aname; return null if not present
+    // Returns domain type of attribute aname; returns null if not present
     public String attributeType(String aname) {
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i).equals(aname))
@@ -57,20 +48,79 @@ public class Relation {
         return null;
     }
 
-    // Print relational schema to screen.
+    // Prints relational schema to screen.
     public void displaySchema() {
         for (String s : attributes)
             System.out.print(s + "");
     }
 
-    // Set name of relation to rname
+    // Sets name of relation to rname
     public void setName(String rname) {
         name = rname;
     }
 
+    // Renames the attribute names of the relation
+    public Relation rename(ArrayList<String> cname) {
+        Relation renamed = new Relation(
+                this.name,
+                cname,
+                this.domains
+           );
+
+        renamed.table.addAll(this.table);
+
+        return renamed;
+    }
+
+    // Outputs the crossproduct of two relations
+    public Relation times(Relation r2) {
+
+        ArrayList<String> catAttr = new ArrayList<>(this.attributes);
+        catAttr.addAll(r2.attributes);
+
+        for (int i = 0; i < this.attributes.size(); i++) {
+            for (int j = 0; j < r2.attributes.size(); j++) {
+                if (catAttr.get(i).equals(r2.attributes.get(j))) {
+                    catAttr.set(i, this.name + "." + catAttr.get(i));
+                    catAttr.set(i + this.attributes.size(), r2.name + "." + catAttr.get(i + this.attributes.size()));
+
+                }
+            }
+        }
+
+        ArrayList<String> catDom = new ArrayList<>(this.domains);
+        catDom.addAll(r2.domains);
+
+        ArrayList<Tuple> catTable = new ArrayList<>();
+
+        for (int i = 0; i < this.table.size(); i++) {
+            for (int j = 0; j < r2.table.size(); j++) {
+
+                catTable.add(
+                            this.table.get(i).concatenate(
+                                    r2.table.get(j),
+                                    r2.attributes,
+                                    r2.domains
+                                )
+                        );
+
+            }
+        }
+
+        Relation crossProduct = new Relation(
+                    this.name + "_TIMES_" + r2.name,
+                    catAttr,
+                    catDom
+                );
+
+        crossProduct.table = catTable;
+
+        return crossProduct;
+    }
+
     // Add tuple tup to relation; Duplicates are fine.
     public void addTuple(Tuple tup) {
-        table.add(tup);
+        this.table.add(tup);
     }
 
     // Check if the tuple t is in the relation

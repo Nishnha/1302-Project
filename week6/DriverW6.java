@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Driver {
+public class DriverW6 {
   public static void main(String args[]) {
     Database db = new Database();
     ArrayList<String> attr1 = new ArrayList<String>();
@@ -61,17 +61,19 @@ public class Driver {
     r2.addTuple(t);
     db.addRelation("REL2",r2);
 
-    Relation r3 = r1.union(r2);
-    r3.setName("REL1_UNION_REL2");
-    Relation r4 = r1.intersect(r2);
-    r4.setName("REL1_INTERSECT_REL2");
-    Relation r5 = r1.minus(r2);
-    r5.setName("REL1_MINUS_REL2");
+    ArrayList<String> newColNames = new ArrayList<String>();
+    newColNames.add("NEWCOL1");
+    newColNames.add("NEWCOL2");
+    Relation r3 = r1.rename(newColNames);
+    r3.setName("RENAMECOLS");
+
+    System.out.println(r1);
+    System.out.println(r3);
 
     System.out.println(r1);
     System.out.println(r2);
-    System.out.println(r3);
+    Relation r4 = r1.times(r2);
+    r4.setName("R1TIMESR2");
     System.out.println(r4);
-    System.out.println(r5);
   }
 }
