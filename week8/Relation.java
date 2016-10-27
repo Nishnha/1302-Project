@@ -213,6 +213,24 @@ public class Relation {
         System.out.println(")");
     }
 
+    // Takes in a comparison and returns a new relation with only tuples that match the condition
+    public Relation select(String lopType, String lopValue, String comparison, String ropType, String ropValue) {
+        Relation select = new Relation (
+                    "SELECT_" + lopValue + "_" + comparison + "_" + ropValue,
+                    this.attributes,
+                    this.domains
+                );
+        ArrayList<Tuple> selectTuples = new ArrayList<Tuple>();
+
+        for (Tuple t : this.table) {
+            if (t.select(lopType, lopValue, comparison, ropType, ropValue))
+                selectTuples.add(t);
+        }
+
+        select.table = selectTuples;
+        return select;
+    }
+
     // New toString that works as intended (copy the output of displayRelation)
     public String toString() {
         String output = new String(this.name + "(");

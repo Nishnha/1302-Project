@@ -30,7 +30,8 @@ public class Tuple {
     public void addStringComponent(String s) {
         try {
             tuple.add((String) s);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println(s + "is not of type string");
         }
     }
@@ -39,7 +40,8 @@ public class Tuple {
     public void addDoubleComponent(Double d) {
         try {
             tuple.add((double) d);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println(d + "is not of type double");
         }
 
@@ -49,7 +51,8 @@ public class Tuple {
     public void addIntegerComponent(Integer i) {
         try {
             tuple.add((int) i);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println(i + "is not of type integer");
         }
     }
@@ -97,6 +100,136 @@ public class Tuple {
         concatenated.tuple.addAll(t2.tuple);
 
         return concatenated;
+    }
+
+    // Takes a comparison condition and returns true if the tuple satisfies the condition
+    public boolean select(String lopType, String lopValue, String comparison, String ropType, String ropValue) {
+        if (lopType.equals("str") && ropType.equals("str")) {
+            return evalStr(lopValue, comparison, ropValue);
+        }
+        else if (lopType.equals("num") && ropType.equals("num")){
+            return evalNum(Double.parseDouble(lopValue), comparison, Double.parseDouble(ropValue));
+        }
+        else {
+            return evalCol(lopType, lopValue, comparison, ropType, ropValue);
+        }
+    }
+
+    // Evaluates column queries
+    private boolean evalCol(String lopType, String lopValue, String comparison, String ropType, String ropValue) {
+        String stringCol = new String();
+        String stringCol2 = new String();
+        double intCol = 0;
+
+        if (lopType.equals("col") && ropType.equals("num")) {
+            for (int i = 0; i < attributes.size(); i++)
+                if (attributes.get(i).equals(lopValue))
+                    if (domains.get(i).equals("INTEGER"))
+                        intCol = (int) tuple.get(i);
+                    else
+                        intCol = (double) tuple.get(i);
+            return evalNum(intCol, comparison, Double.parseDouble(ropValue));
+        }
+        else if (lopType.equals("num") && ropType.equals("col")) {
+            for (int i = 0; i < attributes.size(); i++)
+                if (attributes.get(i).equals(ropValue))
+                    if (domains.get(i).equals("INTEGER"))
+                        intCol = (int) tuple.get(i);
+                    else
+                        intCol = (double) tuple.get(i);
+            return evalNum(Double.parseDouble(lopValue), comparison, intCol);
+        }
+        else if (lopType.equals("col") && ropType.equals("str")) {
+            for (int i = 0; i < attributes.size(); i++)
+                if (attributes.get(i).equals(lopValue))
+                    stringCol = (String) tuple.get(i);
+            return evalStr(stringCol, comparison, ropValue);
+        }
+        else if (lopType.equals("str") && ropType.equals("col")) {
+            for (int i = 0; i < attributes.size(); i++)
+                if (attributes.get(i).equals(lopValue))
+                    stringCol = (String) tuple.get(i);
+            return evalStr(lopValue, comparison, stringCol);
+        }
+        else if (lopType.equals("col") && ropType.equals("col")) {
+            for (int i = 0; i < attributes.size(); i++)
+                if (attributes.get(i).equals(lopValue))
+                    stringCol = (String) tuple.get(i);
+            for (int i = 0; i < attributes.size(); i++)
+                if (attributes.get(i).equals(ropValue))
+                    stringCol2 = (String) tuple.get(i);
+            return evalStr(stringCol, comparison, stringCol2);
+        }
+
+        return false;
+    }
+
+    // Evaluates num queries
+    private boolean evalNum(double lopInt, String comparison, double ropInt) {
+        switch (comparison) {
+            case "=" :
+                return lopInt == ropInt;
+            case "<>":
+                return lopInt != ropInt;
+            case ">" :
+                return lopInt > ropInt;
+            case "<" :
+                return lopInt < ropInt;
+            case ">=":
+                return lopInt >= ropInt;
+            case "<=":
+                return lopInt <= ropInt;
+        }
+
+        return false;
+    }
+
+    // Evaluates string queries
+    private boolean evalStr(String lopValue, String comparison, String ropValue) {
+        int compareVal;
+
+        if (comparison.equals("="))
+            return lopValue.equals(ropValue);
+        if (comparison.equals("<>"))
+            return !lopValue.equals(ropValue);
+        if (comparison.equals(">")) {
+            compareVal = lopValue.compareTo(ropValue);
+            if (compareVal > 0)
+                return true;
+            if (compareVal < 0)
+                return false;
+            else
+                return false;
+        }
+        if (comparison.equals("<")) {
+            compareVal = lopValue.compareTo(ropValue);
+            if (compareVal > 0)
+                return false;
+            if (compareVal < 0)
+                return true;
+            else
+                return false;
+        }
+        if (comparison.equals(">=")) {
+            compareVal = lopValue.compareTo(ropValue);
+            if (compareVal > 0)
+                return true;
+            if (compareVal < 0)
+                return false;
+            else
+                return true;
+        }
+        if (comparison.equals("<=")) {
+            compareVal = lopValue.compareTo(ropValue);
+            if (compareVal > 0)
+                return false;
+            if (compareVal < 0)
+                return true;
+            else
+                return true;
+        }
+
+        return false;
     }
 
     // return String representation of tuple; See output of run for format.
